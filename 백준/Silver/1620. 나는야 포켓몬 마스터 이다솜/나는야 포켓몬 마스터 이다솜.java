@@ -1,3 +1,4 @@
+
 /**
  * https://www.acmicpc.net/problem/1620
  *
@@ -32,38 +33,27 @@ public class Main {
         int m = Integer.parseInt(st.nextToken());
 
 
-        List<String> arr = new ArrayList<>();
-        arr.add("");
-        HashMap<String, Integer> dict = new HashMap<>();
+        String[] names = new String[n + 1];
+        Map<String, Integer> nameToIndex  = new HashMap<>();
 
         for (int i = 1 ; i <= n; i++) {
             String name = br.readLine();
-            arr.add(name);
-            dict.put(name, i);
+            names[i] = name;
+            nameToIndex.put(name, i);
         }
 
         StringBuilder sb = new StringBuilder();
-
         for (int i = 0; i < m; i++) {
-            String s = br.readLine();
-            if (isInteger(s)) {
-                sb.append(arr.get(Integer.parseInt(s))).append("\n");
+            String query = br.readLine();
+            if (Character.isDigit(query.charAt(0))) {
+                int index = Integer.parseInt(query);
+                sb.append(names[index]).append(("\n"));
             } else {
-                sb.append(dict.get(s)).append("\n");
+                sb.append(nameToIndex.get(query)).append(("\n"));
             }
         }
 
         System.out.println(sb);
     }
-
-    public static boolean isInteger(String s) {
-        try {
-            Integer.parseInt(s);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
 
 }
