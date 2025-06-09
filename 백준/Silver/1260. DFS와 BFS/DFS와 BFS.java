@@ -4,6 +4,7 @@
  *
  * */
 import java.util.*;
+import java.util.stream.*; //자바는 재귀 import 하지 않음
 import java.io.*;
 
 public class Main {
@@ -13,6 +14,10 @@ public class Main {
     static boolean[] isVisited;
     static List<List<Integer>> graph = new ArrayList<>();
     static StringBuilder sb = new StringBuilder();
+
+    static List<Integer> dfsResult = new ArrayList<>();
+    static List<Integer> bfsResult = new ArrayList<>();
+
 
 
     public static void main(String[] args) throws Exception {
@@ -45,19 +50,29 @@ public class Main {
         // DFS 실행
         isVisited = new boolean[n + 1];
         dfs(v);
-        sb.append("\n");
+
 
         // BFS 실행
         isVisited = new boolean[n + 1];
         bfs(v);
-        sb.append("\n");
+
+        sb.append(
+                dfsResult.stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(" "))
+        ).append("\n");
+        sb.append(
+                bfsResult.stream()
+                        .map(String::valueOf)
+                        .collect(Collectors.joining(" "))
+        ).append("\n");
 
         System.out.println(sb);
     }
 
     public static void dfs(int now) {
         isVisited[now] = true;
-        sb.append(now + " ");
+        dfsResult.add(now);
         for (int next : graph.get(now)) {
             if (!isVisited[next]) {
                 dfs(next);
@@ -72,7 +87,7 @@ public class Main {
 
         while (!q.isEmpty()) {
             int now = q.poll();
-            sb.append(now + " ");
+            bfsResult.add(now);
 
             for (int next: graph.get(now)) {
                 if (!isVisited[next]) {
