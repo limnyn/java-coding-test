@@ -31,8 +31,8 @@ if __name__ == "__main__":
         ad_c, a_p = ad_cost[r], attracted_people[r]
         
         for currendt_a_p in range(a_p, 1101):
-            if dp[currendt_a_p - a_p] != float("inf"):
-                dp[currendt_a_p] = min(dp[currendt_a_p - a_p] + ad_c, dp[currendt_a_p])
+            # if dp[currendt_a_p - a_p] != float("inf"):
+            dp[currendt_a_p] = min(dp[currendt_a_p - a_p] + ad_c, dp[currendt_a_p])
             
     
     print(min(dp[C:]))
