@@ -1,8 +1,10 @@
 # https://www.acmicpc.net/problem/1106
 '''
-최소 C명 이상을 도달하기 위해 가장 작은 고객수
+dp = min(dp[i - 얻을 수 있는 사람 수] + 비용, dp[i])
+즉, 현재 도시에서 사람을 선택했을 때와 아닐때를 비교해서 갱신한다.
 
-dp 냅색?
+여기서 C명을 넘기는 경우의 최소 비용이기 때문에
+min(dp[C:])로 계산한다.
 '''
 import sys
 def input(): return sys.stdin.readline().rstrip()
@@ -11,33 +13,15 @@ def input(): return sys.stdin.readline().rstrip()
 if __name__ == "__main__":
     C, N = map(int, input().split())
     
-    ad_cost = [-1]
-    attracted_people = [-1]
-    for _ in range(N):
-        c, p = map(int, input().split())
-        ad_cost.append(c)
-        attracted_people.append(p)
+    pairs = []
     
-    # idx명을 유치하기 위해 들어가는 최소 비용 -> dp[idx]
-    dp = [float("inf")] * 1101
+    dp = [float("inf")] * 1100
     dp[0] = 0
-    for i in range(1, N + 1):
-        # dp 초기화, 
-        ad_c, a_p = ad_cost[i], attracted_people[i]
+    
+    for _ in range(N):
+        expense, profit = map(int, input().split())
+        for i in range(profit, len(dp)):
+            dp[i] = min(dp[i-profit] + expense, dp[i])
+        
 
-    
-    for r in range(1, N + 1):
-        
-        ad_c, a_p = ad_cost[r], attracted_people[r]
-        
-        for currendt_a_p in range(a_p, 1101):
-            # if dp[currendt_a_p - a_p] != float("inf"):
-            dp[currendt_a_p] = min(dp[currendt_a_p - a_p] + ad_c, dp[currendt_a_p])
-            
-    
     print(min(dp[C:]))
-            
-    
-        
-    
-    
