@@ -1,5 +1,4 @@
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -25,27 +24,18 @@ public class Main {
         Arrays.fill(dp, Integer.MAX_VALUE);
         dp[0] = 0;
 
-        int[] expenses = new int[N];
-        int[] profits = new int[N];
-
         for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
-            expenses[i] = Integer.parseInt(st.nextToken());
-            profits[i] = Integer.parseInt(st.nextToken());
-        }
-
-        for (int i = 0; i < N; i++) {
-            int expense = expenses[i];
-            int profit =  profits[i];
-
-            for (int j = profit; j < 1100; j++) {
+            int expense = Integer.parseInt(st.nextToken());
+            int profit = Integer.parseInt(st.nextToken());
+            
+            for (int j = profit; j < dp.length; j++) {
                 dp[j] = Math.min(dp[j], dp[j-profit] + expense);
             }
-
         }
-
+        
         long minCost = dp[C];
-        for (int i = C; i< 1100; i++) {
+        for (int i = C; i< dp.length; i++) {
             minCost = Math.min(minCost, dp[i]);
         }
         System.out.println(minCost);
