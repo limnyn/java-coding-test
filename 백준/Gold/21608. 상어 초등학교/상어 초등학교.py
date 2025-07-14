@@ -42,7 +42,7 @@ def placement(idx):
     now = friends[idx][0]
     now_friends = friends[idx][1]
     
-    hq = []
+    candidates = []
 
     for r in range(n):
         for c in range(n):
@@ -61,9 +61,13 @@ def placement(idx):
                 
                 elif grid[nr][nc] in now_friends:
                   favor_cnt += 1
-            heapq.heappush(hq, (-favor_cnt, -null_cell_cnt, r, c))
+            
+            # 음수 r, c를 넣어 lexicographical order 유지
+            candidates.append((favor_cnt, null_cell_cnt, -r, -c))
+
     
-    _, _, r, c = heapq.heappop(hq)            
+    favor_cnt, null_cnt, r_neg, c_neg = max(candidates)
+    r, c = -r_neg, -c_neg
     grid[r][c] = now
                 
 
