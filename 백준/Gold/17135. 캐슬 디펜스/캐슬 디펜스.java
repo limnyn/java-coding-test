@@ -1,161 +1,143 @@
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
-
-//https://www.acmicpc.net/problem/17135
+import java.util.*;
 
 /**
-3<=n<=15
-15개중 3자리 뽑는 경우 15C3 -> 455
-최대 455번 game(positions_of_archers)을 수행시켜 최대값 출력
--> 완탐 수행
+ * https://www.acmicpc.net/problem/17135
+ *
+ * 궁수 조합을 뽑는다.
+ *
+ * 각 조합에 대해 라운드를 반복한다.
+ * 1. 라운드 별 각 궁수별로 bfs 탐색을 돌아 적을 찾는다.
+ * 2. 모든 궁수 탐색 이후 찾은 적을 제거한다.
+ * 3. 라운드 종료 시 궁수의 row를 한 칸 씩 내린다
+ *
+ * */
 
-def game
-    -> 각 archer에 대해 bfs를 통해 
-        조건을 만족하기 위해서 (가장가까운 거리, 동일한 거리는 왼쪽것 부터)
-        [0,-1], [-1,0] ,[0,1], 우 순서대로 탐색 하다가 제일 처음 만나는 적을 
-        target으로 지정
 
-        성벽에 배치된 궁수에 대해 stage(또는 round) 마다 
-        궁수들의 좌표 중 r 값을 n부터 0까지 한 줄 씩 올리면서 궁수들의 거리 계산 및 bfs를 수행한다
-        이후 표적들에 대해 list에 넣어서 stage가 끝날 때 마다 표적들을 0으로 만들어 주고 count를 한다
-
-        stage가 끝나면 처리한 전체 적을 반환한다.
-        
-
- */
 public class Main {
-    static int n, m, d;
-    static int grid[][];
-    static int result;
-    public static void main(String[] args) throws IOException{
+
+    static class Point {
+
+        int r;
+        int c;
+        int dist;
+
+        Point (int r, int c, int dist) {
+            this.r = r;
+            this.c = c;
+            this.dist = dist;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return  true;
+            if (!(o instanceof Point)) return false;
+            Point p = (Point) o;
+            return r == p.r && c == p.c;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(r, c);
+        }
+    }
+
+    static int[][] grid;
+    static int N;
+    static int M;
+    static int D;
+
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        d = Integer.parseInt(st.nextToken());
-        grid = new int[n][m];
-        for(int r = 0; r < n; r++){
+        StringTokenizer st;
+
+        st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        D = Integer.parseInt(st.nextToken());
+
+        grid = new int[N][M];
+
+        for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
-            for(int c = 0; c < m; c++){
-                if (st.nextToken().equals("1")){
-                    grid[r][c] = 1;
-                } else {
-                    grid[r][c] = 0;
+            for (int j = 0; j < M; j++) {
+                grid[i][j] = Integer.parseInt(st.nextToken());
+            }
+        }
+
+        int maxKill = 0;
+        for (int i = 0; i < M - 2; i++) {
+            for (int j = i + 1; j < M - 1; j++) {
+                for (int k = j + 1; k < M; k++) {
+                    maxKill = Math.max(game(new int[]{i, j, k}), maxKill);
                 }
             }
         }
-        int [] arr = new int[m];
-        for (int i = 0; i < m; i++){
-            arr[i] = i;
-        }
-        result = Integer.MIN_VALUE;
-        combination(arr, new boolean[m], 0, m, 3);
 
-        System.out.println(result);
+        System.out.println(maxKill);
+        br.close();
     }
 
-    static int[] comb;
-    static void combination(int[] arr, boolean[] visited, int start, int n, int r) {
-        if(r == 0) {
-            comb = new int[3];
-            int idx = 0;
-            for (int i = 0; i < m; i++){
-                if (visited[i] == true){
-                    comb[idx] = i;
-                    idx++;
-                }
-            }
-            int gameResult = game(comb);
-            result = Math.max(gameResult, result);
-            // System.out.printf("%d, %d, %d\n",comb[0],comb[1],comb[2] );
-            return;
-        }
-            
-        for(int i = start; i < n; i++) {
-            visited[i] = true;
-            combination(arr, visited, i + 1, n, r - 1);
-            visited[i] = false;
-        }
-    }
+    public static int game(int[] archerCols) {
+        int[] dr = {0, -1, 0};
+        int[] dc = {-1, 0, 1};
 
-    public static int game(int[] positionsOfArchers){
-        int [] dr = {0, -1, 0};
-        int [] dc = {-1, 0, 1};
-        int[][] gridForComb = new int[n][m];
+        int[][] gameGrid = new int[N][M];
+        for (int i = 0; i < N; i++)
+            gameGrid[i] = grid[i].clone();
 
-        for (int i = 0; i < grid.length; i++){
-            System.arraycopy(grid[i],0, gridForComb[i], 0, grid[0].length);
-        }
+        int killCount = 0;
 
-        int enemyKillCount = 0;
-        for(int stage = n; stage > -1; stage--){
+        // 라운드 단위
+        for (int round = N; round > 0; round--) {
+            Set<Point> targetPoints = new HashSet<>();
 
-            ArrayList<int[]> enemySpot = new ArrayList<int[]>();
-            
-            for (int archer : positionsOfArchers) {
-                boolean[][] visited = new boolean[n][m];
-                Queue<int[]> q = new LinkedList<>();
-                int[] first_start = {stage, archer, 0};
-                q.add(first_start);
-                //0으로 초기화된 2차원 방문배열
-                
-                while(!q.isEmpty()){
-                    int[] qPop = q.poll();
-                    int r = qPop[0];
-                    int c = qPop[1];
-                    int dis = qPop[2];
-                    
-                    for (int i = 0; i < 3; i++){
-                        int nr = r + dr[i];
-                        int nc = c + dc[i];
+            //각 궁수별 탐색 수행
+            for (int archerCol: archerCols) {
 
-                        if (0 <= nr && nr < n && 0 <= nc && nc < m){
-                            if (visited[nr][nc] == false){
-                                visited[nr][nc] = true;
-                                if (gridForComb[nr][nc] == 1){
-                                    if (dis + 1 <= d){
-                                        // int[] next = {nr, nc, dis + 1};
-                                        enemySpot.add(new int[]{nr, nc, dis + 1});
-                                        q = new LinkedList<>();
-                                        break;
-                                    }
-                                } else {
-                                    if (dis + 1 <= d){
-                                        q.add(new int[] {nr, nc, dis + 1});
-                                    }
-                                }
+                boolean[][] visited = new boolean[round][M];
 
+                Queue<Point> q = new ArrayDeque<>();
+                q.offer(new Point(round, archerCol, 1));
 
-                            }
-                            
+                boolean found = false;
+                // 궁수의 BFS 탐색
+                while (!q.isEmpty() && !found) {
+                    Point now = q.poll();
+
+                    // 각 방향에 대해
+                    for (int i = 0; i < 3; i++) {
+                        int nr = now.r + dr[i];
+                        int nc = now.c + dc[i];
+
+                        //범위 이탈이나 방문한 경우
+                        if (!(0 <= nr && nr < round && 0 <= nc && nc < M) || visited[nr][nc])
+                            continue;;
+
+                        visited[nr][nc] = true;
+
+                        //타겟 발견 시 해당 궁수는 탐색 중단.
+                        if (gameGrid[nr][nc] == 1) {
+                            targetPoints.add(new Point(nr, nc, -1));
+                            found = true;
+                            break;
                         }
+
+                        if (now.dist + 1 > D)
+                            continue;
+
+                        q.offer(new Point(nr, nc, now.dist + 1));
                     }
                 }
-
-
-                
             }
-            
-            for (int[] e_rcdis : enemySpot) {
-                int eR = e_rcdis[0];
-                int eC = e_rcdis[1];
-                int eDis = e_rcdis[2];
-
-                if (gridForComb[eR][eC] == 1){
-                    enemyKillCount += 1;
-                    gridForComb[eR][eC] = 0;
-                }
-                
+            //라운드 탐색 종료 후 제거 처리
+            for (Point p: targetPoints) {
+                gameGrid[p.r][p.c] = 0;
+                killCount += 1;
             }
-            if (stage > 0)
-                gridForComb[stage-1] = new int[m];
         }
-        return enemyKillCount;
+        return killCount;
     }
 }
