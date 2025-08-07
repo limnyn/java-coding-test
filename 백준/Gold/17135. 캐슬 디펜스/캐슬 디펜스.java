@@ -29,19 +29,6 @@ public class Main {
             this.c = c;
             this.dist = dist;
         }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return  true;
-            if (!(o instanceof Point)) return false;
-            Point p = (Point) o;
-            return r == p.r && c == p.c;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(r, c);
-        }
     }
 
     static int[][] grid;
@@ -92,7 +79,7 @@ public class Main {
 
         // 라운드 단위
         for (int round = N; round > 0; round--) {
-            Set<Point> targetPoints = new HashSet<>();
+            Set<Integer> targetPoints = new HashSet<>();
 
             //각 궁수별 탐색 수행
             for (int archerCol: archerCols) {
@@ -120,7 +107,8 @@ public class Main {
 
                         //타겟 발견 시 해당 궁수는 탐색 중단.
                         if (gameGrid[nr][nc] == 1) {
-                            targetPoints.add(new Point(nr, nc, -1));
+
+                            targetPoints.add(nr*M + nc);
                             found = true;
                             break;
                         }
@@ -133,8 +121,10 @@ public class Main {
                 }
             }
             //라운드 탐색 종료 후 제거 처리
-            for (Point p: targetPoints) {
-                gameGrid[p.r][p.c] = 0;
+            for (int s: targetPoints) {
+                int r = s / M;
+                int c = s % M;
+                gameGrid[r][c] = 0;
                 killCount += 1;
             }
         }
