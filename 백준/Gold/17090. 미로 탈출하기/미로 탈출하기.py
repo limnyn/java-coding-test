@@ -13,9 +13,9 @@ import sys
 sys.setrecursionlimit(10**6)
 def input(): return sys.stdin.readline().rstrip()
 
-
 dr = [-1, 0, 1, 0]
 dc = [0, 1, 0, -1]
+dir_map = {'U': 0, 'R' : 1, 'D' : 2, 'L' : 3}
 
 visited = []
 escaped = []
@@ -25,16 +25,8 @@ def dfs(r, c):
     
     oper = grid[r][c]
     
-    idx = -1
-    if oper == 'U':
-        idx = 0
-    elif oper == 'R':
-        idx = 1
-    elif oper == 'D':
-        idx = 2
-    elif oper == 'L':
-        idx = 3
-        
+    idx = dir_map[oper]
+
     nr, nc = r + dr[idx], c + dc[idx]
     
     # 범위 벗어난 경우 우선 처리
