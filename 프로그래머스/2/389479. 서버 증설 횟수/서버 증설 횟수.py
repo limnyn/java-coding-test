@@ -1,24 +1,24 @@
 from collections import deque
 def solution(players, m, k):
-    """
-    깡구현
-    시각에 따라 deque 구조로 밀어내기 방식으로 서버를 유지한다. 
-    """
+    
     dq = deque([])
-    dq.append((0,0))
+    dq.append((0,0)) # (증설한 서버를 반납하는 시간, 해당 시점에 수거할 서버 개수)
     server_add_count = 0
     now_capable = m
+    current_server = 1
     for time, user in enumerate(players):
         
         if dq and dq[0][0] == time:
             t, server_num = dq.popleft()
-            now_capable -= (server_num * m)
+            current_server -= server_num
             
-        if user > now_capable - 1:
-            need_server = user//m - (now_capable-1)//m
+        # 현재 수용가능한 최대 인원 = server갯수 * m - 1
+        now_capable = current_server * m - 1
+        
+        if user > now_capable:
+            need_server = user//m - (current_server - 1)
             dq.append((time + k, need_server))
-            print(time + k, need_server)
             server_add_count += need_server
-            now_capable += (need_server * m)
+            current_server +=  need_server
 
     return server_add_count
