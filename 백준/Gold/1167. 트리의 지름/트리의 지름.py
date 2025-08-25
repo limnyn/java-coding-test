@@ -10,6 +10,27 @@ from collections import deque
 import sys
 def input(): return sys.stdin.readline().rstrip()
 
+def find_farthest_node(start, graph, n):
+    dq = deque([(start, 0)])
+    visited = [False] * (n + 1)
+    visited[start] = True
+    far_node, far_dist = start, 0
+    
+    while dq:
+        node, acc = dq.popleft()
+        
+        if acc > far_dist:
+            far_node, far_dist = node, acc
+        
+        for next, w in graph[node]:
+            if not visited[next]:
+                visited[next] = True
+                dq.append((next, acc + w))
+    
+    return far_node, far_dist
+                
+            
+
 if __name__ == "__main__":
     
     n = int(input())
@@ -23,40 +44,10 @@ if __name__ == "__main__":
         for i in range(0, len(lst), 2):
             dst, weight = lst[i], lst[i+1]
             graph[src].append((dst, weight))
-            
-    dq = deque([])
-    dq.append((1, 0))
-    visited = [False] * (n + 1)
-    visited[1] = True
-    max_node, max_dist = 1, 0
-    while dq:
-        node, acc = dq.popleft()
-        
-        for next, dist in graph[node]:
-            if not visited[next]:
-                visited[next] = True
-                dq.append((next, acc + dist))
-                if max_dist <= acc + dist:
-                    max_dist = acc + dist
-                    max_node = next
 
-    
-    
-    start_node = max_node
-    dq = deque([])
-    dq.append((start_node, 0))
-    visited = [False] * (n + 1)
-    visited[start_node] = True
-    max_node, max_dist = 0, 0
-    while dq:
-        node, acc = dq.popleft()
+    # 1번에서 가장 먼 노드 X 찾기
+    farthest_node, _ = find_farthest_node(1, graph, n)
+    # X에서 다시 가장 먼 노드까지의 거리가 트리의 지름
+    _, diameter = find_farthest_node(farthest_node, graph, n)
         
-        for next, dist in graph[node]:
-            if not visited[next]:
-                visited[next] = True
-                dq.append((next, acc + dist))
-                if max_dist <= acc + dist:
-                    max_dist = acc + dist
-                    max_node = next            
-    
-    print(max_dist)
+    print(diameter)
